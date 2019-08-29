@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TensorflowJS image classifier</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.0.1"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet@1.0.0"></script>
+    <style>
+        *{
+            font-size: 30px;
+        }
+    </style>
+</head>
+<body>
+    <img id="selected-image" src="static/dog.png" width=227 height=227>
+    <input id = "image-selector" type="file" accept="jpeg, png">
+    <button id = "predict-button">Predict</button>
+    <p style="font-weight: bold">Predictions</p>
+    <p><span id = 'pred1'></span></p>
+    <p><span id = 'pred2'></span></p>
+    <p><span id = 'pred3'></span></p>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script>
+        let base64Image;
+        $("#image-selector").change(function(){
+            let reader = new FileReader();
+            reader.onload = function(e){
+                let dataURL = reader.result;
+                console.log('this is the reader stuff',dataURL)
+                $('#selected-image').attr("src", dataURL);
+                base64Image = dataURL.replace("data:image/png;base64,","");
+                console.log(base64Image);
+            }
+            reader.readAsDataURL($("#image-selector")[0].files[0]);
+            $('#pred1').text('');
+            $('#pred2').text('');
+            $('#pred3').text('');
+        });
+
+        $("#predict-button").click(function(event){
+            const imageEl = document.getElementById("selected-image")
+            mobilenet.load().then(model => {
+                model.classify(imageEl).then(predictions => {
+                    console.log('Predictions: ');
+                    console.log(predictions);
+                    $('#pred1').text(predictions[0].className + ' prob: '+ predictions[0].probability)
+                    $('#pred2').text(predictions[1].className+ ' prob: '+ predictions[1].probability)
+                    $('#pred3').text(predictions[2].className+ ' prob: '+ predictions[2].probability)
+                });
+            });
+            
+        })
+    </script>
+</body>
+</html>
